@@ -9,14 +9,20 @@
 
 .tag{
   color: white;
-  width: 55px;
+  width: 40px;
   height: 25px;
   line-height: 25px;
   text-align: center;
-  font-size: 13px;
+  font-size: 15px;
   border-radius: 12px;
   display: inline-block;
   margin-right: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tag:hover{
+  width: 55px;
 }
 
 .tag span{

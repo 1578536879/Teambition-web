@@ -20,3 +20,10 @@
     margin-bottom: 5px;
     color: #D3D3D3
 }
+
+.tag-list-name{
+    width: 80px;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {Popover, List, Space, Input} from 'antd'
-import {PlusCircleFilled, CloseOutlined, EditOutlined, BulbFilled, CheckOutlined, LineOutlined} from '@ant-design/icons'
+import {Popover, message} from 'antd'
+import {PlusCircleFilled, CloseCircleOutlined, } from '@ant-design/icons'
 import './App.css';
 import EditTag from '../component/editTag';
 
@@ -8,84 +8,129 @@ class App extends Component {
   constructor(props){
     super(props)
     this.state = {
-      tagsData: [{
-        name: '测试',
-        state: false,
-        color: '#1E90FF',
-        id: '121234'
-      }],
       tags: [],
       deleteStyle: {
         display: 'inline'
       },
-      tagName: ''
+      tagName: '',
+      visible: false,
+      onIndex: -1
     }
+
+    this.open = this.open.bind(this)
+    this.close = this.close.bind(this)
+    this.addTag = this.addTag.bind(this)
+    this.modify = this.modify.bind(this)
+    this.onMouseOver = this.onMouseOver.bind(this)
+    this.onMouseLeave = this.onMouseLeave.bind(this)
+    this.chooseTag = this.chooseTag.bind(this)
+    this.deleteTag = this.deleteTag.bind(this)
   }
 
-  deleteTag(e){
-    console.log(e)
-    let data = this.state.tagsData
-    data = data.splice(1, e)
+  open(){
+    this.setState({
+      visible: true,
+      content:  <EditTag close={this.close} addTag={this.addTag} modify={this.modify} chooseTag={this.chooseTag} delete={this.deleteTag}/>
+    })
+  }
+
+  addTag(data){
     console.log(data)
+    let tag = this.state.tags
+    tag.push(data)
     this.setState({
-      tags: data
+      tags: tag,
+      visible: false,
+      content: ''
     })
   }
 
+  chooseTag(data){
+    let tag = this.state.tags
+    tag.push(data)
+    this.setState({
+      tags: tag
+    })
 
+  }
+  
+  pullTag(e){
+    console.log(e)
+    let tag = this.state.tags
+    tag = tag.splice(1, e)
+    this.setState({
+      tags: tag,
+      onIndex: -1
+    })
+  }
 
-  componentDidMount(){
-    let data = []
-    this.state.tagsData.forEach((element, index) => {
-      data.push(
-        <div className='tag' onMouseOver={this.mouseUp} onMouseLeave={this.onMouseLeave} style={{background: element.color}}>
-          {element.name}&nbsp;&nbsp;
-          <span onClick={this.deleteTag.bind(this, index)} ><CloseOutlined /></span>
-        </div>)
+  deleteTag(id){
+    let tag = this.state.tags.filter(ele=>{
+      console.log(ele, id)
+      return ele.TID !== id
+    })
+    console.log(tag, id)
+    this.setState({
+      tags: tag
+    })
+  }
+
+  modify(data){
+    let that = this
+    let tag = [], tagTID = []
+    that.state.tags.forEach(ele=>{
+      tagTID.push(ele.TID)
+    })
+    data.forEach(element => {
+      if(tagTID.indexOf(element.TID) !== -1){
+        tag.push(element)
+      }
     });
-    let pdata = <EditTag/>
     this.setState({
-      tags: data,
-      content: pdata
+      tags: tag
     })
   }
 
-  edit = (e) => {
-    console.log(e)
-  }
-
-  check = (e) => {
-    console.log(e)
-  }
-
-  add = (e) => {
-    console.log(e)
-  }
-
-  addTag(){
-
-  }
-
-  tagChange = (e) => {
-    let name = this.tagName.state.value || this.tagName.value
-    let tag = this.state.tagsData.filter(ele=>{
-      return ele.name = name
+  close(){
+    console.log('close')
+    this.setState({
+      visible: false,
+      content: ''
     })
-    if(tag.length === 0){
+  }
 
-    }
+  onMouseOver(data){
+    this.setState({
+      onIndex: data
+    })
+  }
+
+  onMouseLeave(){
+    this.setState({
+      onIndex: -1
+    })
   }
 
   render(){
     return (
       <div className="App">
-        {this.state.tags.length === 0 && <span className='add-tag'>添加标签</span>}
-
-        {this.state.tags}
+        {this.state.tags.length === 0 &&
+          <Popover visible={this.state.visible} content={this.state.content} trigger="click">
+              <span className='add-tag' onClick={this.open}>添加标签</span>
+          </Popover>
+        }
+        {this.state.tags.map((element, index) => {
+            return (
+              <div className='tag' onMouseOver={this.onMouseOver.bind(this, index)} onMouseLeave={this.onMouseLeave} style={{background: element.color}}>
+                {element.name}&nbsp;&nbsp;
+                {this.state.onIndex === index && <span onClick={this.pullTag.bind(this, index)} ><CloseCircleOutlined /></span>}
+              </div>)
+          }) 
+        }
         
         {this.state.tags.length !== 0 && 
-        <Popover content={this.state.content} trigger="click">
-            <PlusCircleFilled style={{color: '#D3D3D3'}}/>
+        <Popover visible={this.state.visible} content={this.state.content} trigger="click">
+            <PlusCircleFilled onClick={this.open} style={{color: '#D3D3D3'}}/>
         </Popover> }
       </div>
     );
